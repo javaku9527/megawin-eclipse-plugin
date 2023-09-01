@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="wrap" value="true"/>
+		<item key="casesensitive" value="true"/>
+		<item key="wholeword" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<item key="selection" value=""/>
+		<list key="findhistory">
+			<item value="5566"/>
+			<item value="getSelection"/>
+			<item value="Create "/>
+			<item value="Create"/>
+			<item value="55688"/>
+			<item value="megawinpluginproject.Startup1"/>
+			<item value="Startup1"/>
+			<item value="Megawin.toolbars.flashMemoryCommand"/>
+			<item value="Megawin.commands.flashMemoryCommand"/>
+			<item value="Flash"/>
+			<item value="getSelectedProject"/>
+			<item value="ResourceUtil"/>
+			<item value="IResource"/>
+			<item value="IProject "/>
+			<item value="1234"/>
+		</list>
+		<list key="replacehistory">
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="1374"/>
+		<item key="DIALOG_Y_ORIGIN" value="378"/>
+		<item key="DIALOG_WIDTH" value="319"/>
+		<item key="DIALOG_HEIGHT" value="358"/>
+		<item key="DIALOG_FONT_NAME" value="1|Microsoft JhengHei UI|9.0|0|WINDOWS|1|-24|0|0|0|400|0|0|0|1|0|0|5|0|Microsoft JhengHei UI"/>
+	</section>
+</section>

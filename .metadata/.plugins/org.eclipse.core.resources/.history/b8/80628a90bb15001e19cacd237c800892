@@ -1,0 +1,66 @@
+package com.megawin.plugin.app;
+
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.NotEnabledException;
+import org.eclipse.core.commands.NotHandledException;
+import org.eclipse.core.commands.common.NotDefinedException;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
+
+public class MegawinDebugEventListener implements IDebugEventSetListener {
+
+	public void registerDebugEventListener() {
+        DebugPlugin.getDefault().addDebugEventListener(this);
+    }
+    
+    public void unregisterDebugEventListener() {
+        DebugPlugin.getDefault().removeDebugEventListener(this);
+    }
+	
+	@Override
+	public void handleDebugEvents(DebugEvent[] events) {
+		// TODO Auto-generated method stub
+		for (DebugEvent event : events) {
+			// Handle different types of debug events
+			switch (event.getKind()) {
+			case DebugEvent.CREATE:
+//				IHandlerService handlerService = PlatformUI.getWorkbench().getService(IHandlerService.class);
+//				try {
+//					handlerService.executeCommand("Megawin.commands.flashMemoryCommand", null);
+//				} catch (ExecutionException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (NotDefinedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (NotEnabledException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (NotHandledException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		        if (window != null) {
+		            IWorkbenchPage page = window.getActivePage();
+		            if (page != null) {
+		                IPerspectiveRegistry perspectiveRegistry = PlatformUI.getWorkbench().getPerspectiveRegistry();
+		                IPerspectiveDescriptor perspective = perspectiveRegistry.findPerspectiveWithId(perspectiveId);
+		                if (perspective != null) {
+		                    page.setPerspective(perspective);
+		                }
+		            }
+		        }
+				System.out.println("CCC");
+				break;
+			case DebugEvent.TERMINATE:
+				System.out.println("Terminate");
+				break;
+			}
+		}
+	}
+
+}

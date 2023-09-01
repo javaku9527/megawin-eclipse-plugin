@@ -1,0 +1,5 @@
+package com.megawin.plugin.handlers;
+
+public class A extends VariablesView implements IMemoryBlockListener, IDebugEventSetListener {
+
+}

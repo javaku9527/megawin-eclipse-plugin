@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <menu
+               id="fileMenu"
+               label="file">
+         </menu>
+         <command
+               commandId="com.megawin.plugin.flashmemory"
+               label="Flash"
+               style="push"
+               tooltip="Flash the memory">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.megawin.plugin.handlers.FlashHandler"
+            commandId="com.megawin.plugin.handler1">
+      </handler>
+   </extension>
+</plugin>

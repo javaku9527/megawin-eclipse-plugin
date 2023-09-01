@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="java.awt.Button"/>
+    <fullyQualifiedTypeName name="org.eclipse.swt.widgets.Button"/>
+    <fullyQualifiedTypeName name="org.eclipse.jface.dialogs.MessageDialog"/>
+    <fullyQualifiedTypeName name="org.eclipse.ui.commands.AbstractHandler"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.commands.AbstractHandler"/>
+    <fullyQualifiedTypeName name="org.eclipse.ui.handlers.HandlerUtil"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.resources.IResource"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.resources.ResourcesPlugin"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.resources.IWorkspace"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.internal.resources.Project"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.resources.IFile"/>
+    <fullyQualifiedTypeName name="org.eclipse.jdt.internal.core.JavaProject"/>
+    <fullyQualifiedTypeName name="org.eclipse.jdt.core.IJavaProject"/>
+    <fullyQualifiedTypeName name="java.util.Objects"/>
+    <fullyQualifiedTypeName name="org.eclipse.core.internal.resources.File"/>
+    <fullyQualifiedTypeName name="java.lang.IllegalArgumentException"/>
+    <fullyQualifiedTypeName name="org.eclipse.swt.widgets.Event"/>
+    <fullyQualifiedTypeName name="com.megawin.plugin.util.EclipseUtils"/>
+    <fullyQualifiedTypeName name="org.eclipse.ui.PlatformUI"/>
+    <fullyQualifiedTypeName name="org.eclipse.ui.ISelectionListener"/>
+    <fullyQualifiedTypeName name="java.io.File"/>
+    <fullyQualifiedTypeName name="java.util.Date"/>
+    <fullyQualifiedTypeName name="org.apache.commons.io.FileUtils"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="org.eclipse.debug.core.IDebugEventSetListener"/>
+</qualifiedTypeNameHistroy>
