@@ -239,6 +239,7 @@ int flash_target(FILE *fp) {
 	mlink_data_stage(fd);
 	uint32_t deviceId = le_to_h_u32(databuf);	
 	found_device = find_device(device_array, deviceId);
+	printf("DeviceID = %x\n", deviceId);
 	if (found_device == NULL) {
 		printf("Can't find Device!, DeviceID = %x", deviceId);
 		//return ERROR_FAIL;
