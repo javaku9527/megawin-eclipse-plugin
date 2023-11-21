@@ -47,5 +47,20 @@
             class="com.megawin.embcdt.Startup">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.core.resources.variableResolvers">
+      <variableResolver
+            class="com.megawin.embcdt.TestVariableResolver"
+            variable="abc">
+      </variableResolver>
+   </extension>
+   <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+      <variable
+            description="description"
+            name="aaa"
+            resolver="com.megawin.embcdt.TestVariableResolver">
+      </variable>
+   </extension>
 
 </plugin>

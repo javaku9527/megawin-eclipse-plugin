@@ -1,0 +1,19 @@
+package com.megawin.embcdt;
+
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.variableresolvers.PathVariableResolver;
+import org.eclipse.core.variables.IDynamicVariableResolver;
+
+public class TestVariableResolver extends PathVariableResolver implements IDynamicVariableResolver {
+
+	public TestVariableResolver() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public String getValue(String variable, IResource resource) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

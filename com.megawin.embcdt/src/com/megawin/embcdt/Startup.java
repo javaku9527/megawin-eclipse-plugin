@@ -16,6 +16,7 @@ public class Startup implements IStartup {
 
 	private void init() {
 		EclipseUtils.loadLibFromJar();
+		EclipseUtils.loadConfigLibFromJar();
 	}
 
 	private void registerListeners() {

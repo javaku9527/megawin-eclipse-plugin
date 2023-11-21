@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Embcdt
+Bundle-SymbolicName: com.megawin.embcdt;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Import-Package: org.apache.commons.io
+Bundle-Vendor: MEGAWIN
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.debug.core,
+ org.eclipse.core.runtime
+Automatic-Module-Name: com.megawin.embcdt
+Bundle-RequiredExecutionEnvironment: JavaSE-17

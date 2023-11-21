@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            name="Flash Memory"
+            id="com.megawin.embcdt.commands.flashMemoryCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.megawin.embcdt.handlers.FlashMemoryHandler"
+            commandId="com.megawin.embcdt.commands.flashMemoryCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.megawin.embcdt.commands.flashMemoryCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="com.megawin.embcdt.toolbars.sampleToolbar">
+            <command
+                  commandId="com.megawin.embcdt.commands.flashMemoryCommand"
+                  id="com.megawin.embcdt.toolbars.flashMemoryCommand"
+                  label="Flash"
+                  tooltip="Flash Target">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="com.megawin.embcdt.Startup">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.core.resources.variableResolvers">
+      <variableResolver
+            class="com.megawin.embcdt.TestVariableResolver"
+            variable="abc">
+      </variableResolver>
+   </extension>
+   <extension
+         point="org.eclipse.core.variables.dynamicVariables">
+      <variable
+            description="description"
+            name="aaa"
+            resolver="com.megawin.embcdt.TestVariableResolver1">
+      </variable>
+   </extension>
+
+</plugin>
