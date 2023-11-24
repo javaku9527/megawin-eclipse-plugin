@@ -7,8 +7,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,7 +32,7 @@ public class EclipseUtils {
 	private static final String CONFIG_BIN = "cfg-bin";
 	private static final String PATH = "AC_" + File.separator;
 	private final static String FLASH_WIN = "flash.exe";
-	private final static String FLASH_LIN = "flash.exe";
+	private final static String FLASH_LIN = "flash";
 	private final static String LIBUSB = "libusb-1.0.dll";
 
 	public static void openPopupWindow(ExecutionEvent event, String title, String message) {
@@ -43,10 +48,11 @@ public class EclipseUtils {
 
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.contains("win")) {
-			loadLib(PATH, FLASH_WIN);
-			loadLib(PATH, LIBUSB);
+			loadLib(FLASH_WIN);
+			loadLib(LIBUSB);
 		} else {
-			loadLib(PATH, FLASH_LIN);
+			loadLib(FLASH_LIN);
+			changeLibUmask(getDestFlashMemExePath(FLASH_LIN));
 		}
 
 	}
@@ -74,11 +80,8 @@ public class EclipseUtils {
 				in.close();
 				out.close();
 			}
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			System.out.println("Fail to Load Config");
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			System.out.println("111g");
 			e.printStackTrace();
 		}
 	}
@@ -86,13 +89,17 @@ public class EclipseUtils {
 	public static String getFlashMemExePath() {
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.contains("win")) {
-			return System.getProperty("java.io.tmpdir") + PATH + LIB_BIN + File.separator + FLASH_WIN;
+			return System.getProperty("java.io.tmpdir") + File.separator + PATH + LIB_BIN + File.separator + FLASH_WIN;
 		} else {
-			return System.getProperty("java.io.tmpdir") + PATH + LIB_BIN + File.separator + FLASH_LIN;
+			return System.getProperty("java.io.tmpdir") + File.separator + PATH + LIB_BIN + File.separator + FLASH_LIN;
 		}
 	}
 
-	private static void loadLib(String path, String name) {
+	private static String getDestFlashMemExePath(String name) {
+		return System.getProperty("java.io.tmpdir") + File.separator + PATH + LIB_BIN + File.separator + name;
+	}
+
+	private static void loadLib(String name) {
 		try {
 			// have to use a stream
 			InputStream in = EclipseUtils.class.getResourceAsStream("/" + LIB_BIN + "/" + name);
@@ -102,8 +109,7 @@ public class EclipseUtils {
 			}
 
 			// always write to different location
-			File fileOut = new File(
-					System.getProperty("java.io.tmpdir") + File.separator + path + LIB_BIN + File.separator + name);
+			File fileOut = new File(getDestFlashMemExePath(name));
 			System.out.println("Writing file to: " + fileOut.getAbsolutePath());
 			OutputStream out = FileUtils.openOutputStream(fileOut);
 			IOUtils.copy(in, out);
@@ -111,6 +117,29 @@ public class EclipseUtils {
 			out.close();
 		} catch (Exception e) {
 			System.out.println("Fail to Load Lib");
+		}
+	}
+
+	private static void changeLibUmask(String filePath) {
+		try {
+			Path path = Paths.get(filePath);
+			Set<PosixFilePermission> perms = Files.readAttributes(path, PosixFileAttributes.class).permissions();
+			System.out.format("Permissions before: %s%n", PosixFilePermissions.toString(perms));
+
+			perms.add(PosixFilePermission.OWNER_WRITE);
+			perms.add(PosixFilePermission.OWNER_READ);
+			perms.add(PosixFilePermission.OWNER_EXECUTE);
+			perms.add(PosixFilePermission.GROUP_WRITE);
+			perms.add(PosixFilePermission.GROUP_READ);
+			perms.add(PosixFilePermission.GROUP_EXECUTE);
+			perms.add(PosixFilePermission.OTHERS_WRITE);
+			perms.add(PosixFilePermission.OTHERS_READ);
+			perms.add(PosixFilePermission.OTHERS_EXECUTE);
+			Files.setPosixFilePermissions(path, perms);
+
+			System.out.format("Permissions after:  %s%n", PosixFilePermissions.toString(perms));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

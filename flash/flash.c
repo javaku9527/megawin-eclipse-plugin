@@ -9,16 +9,17 @@
 static struct libusb_device_handle *fd = NULL;
 static struct libusb_context *context = NULL; 
 uint16_t vid = 0x0E6A, pid = 0x0325, vcp_pid = 0x0331;
-static int is_vcp_pid = 1;
 
 static uint8_t *cmdbuf;
 static uint8_t *databuf;
+static uint32_t interfaceNo;
 
 struct device *found_device;
 
 int flash_target(FILE *fp);
-static int mlink_init();
-static void mlink_exit();
+int mlink_init();
+void mlink_exit();
+int claim_interface(int idx);
 
 int main(int argc, char *argv[]) {
 
@@ -32,8 +33,8 @@ int main(int argc, char *argv[]) {
 
 	FILE *fp = fopen(path, "r");
 	if (!fp) {
-			printf("Error: Failed to open file %s\n", path);
-			return ERROR_FAIL;
+		printf("Error: Failed to open file %s\n", path);
+		return ERROR_FAIL;
 	}
 
 	mlink_init();
@@ -42,7 +43,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-static void init_buffer(void)  
+void init_buffer(void)  
 {
 	memset(cmdbuf, 0, MLINK_CMD_SIZE);
 	memset(databuf, 0, MLINK_DATA_SIZE);
@@ -63,22 +64,27 @@ int mlink_usb_control(libusb_device_handle *handle, uint16_t cmd, uint32_t addr,
 	buf_set_u32(cmdbuf, 4 * 2 * 4, 32, addr);
 	buf_set_u32(cmdbuf, 8 * 2 * 4, 32, len);
 	buf_set_u32(cmdbuf, 12 * 2 * 4, 32, val);
-
+	
+	claim_interface(0);
 	ret = libusb_control_transfer(handle, 0x21, 0x09, 0x0300, 0x0000, (char *)cmdbuf, 128, 1000);
 
 	return ret;
 }
 
-int mlink_data_stage(libusb_device_handle *handle) {	
+int mlink_data_stage(libusb_device_handle *handle) {
+
+	claim_interface(0);
 	int ret = libusb_control_transfer(handle, 0xA1, 0x01, 0x0300, 0x0000, (char *)databuf, 128, 1000);
 	return ret;
 }
 
-static int mlink_usb_interrupt(void *handle, uint16_t cmd, uint32_t addr) {
+int mlink_usb_interrupt(void *handle, uint16_t cmd, uint32_t addr) {
 
 	init_buffer();
 	mlink_usb_control(fd, cmd, addr, 0, 0);
+
 	int act_len;
+	claim_interface(interfaceNo);
 	int ret = libusb_interrupt_transfer(handle, 0x81, databuf, 64, &act_len, 1000);
 	uint32_t status = le_to_h_u32(databuf);
 	
@@ -123,6 +129,7 @@ int ice_write_data(uint16_t cmd, uint8_t* buffer, uint32_t addr, uint32_t size)
 		}
 		int act_len;
 		init_buffer();
+		claim_interface(interfaceNo);
 		dwResult = libusb_interrupt_transfer(fd, 0x81, databuf, 64, &act_len, 1000);									
 		printf("ice_write_data return status: %x %d %d\n", databuf[0], databuf[2], databuf[3]);
 	}
@@ -258,7 +265,7 @@ int flash_target(FILE *fp) {
 	return ERROR_OK;
 }
 
-static int claim_interface(int idx)
+int claim_interface(int idx)
 {
 	int ret = libusb_claim_interface(fd, idx); 
 	if(ret != LIBUSB_SUCCESS){
@@ -271,7 +278,7 @@ static int claim_interface(int idx)
 	return ret;
 }
 
-static int set_configuration() {
+int set_configuration() {
 	int ret = libusb_set_configuration(fd, 1);
     if (ret < 0) {
         printf("Failed to set configuration: %s\n", libusb_error_name(ret));
@@ -281,7 +288,7 @@ static int set_configuration() {
     }
 }
 
-static int mlink_init(void) 
+int mlink_init(void) 
 {
     int ret = libusb_init(&context);
     if (ret < 0) {
@@ -291,14 +298,14 @@ static int mlink_init(void)
 
 	if (fd = libusb_open_device_with_vid_pid(context, vid, pid)) {
 		printf("vid = %04x, pid = %04x\n", vid , pid);
-		is_vcp_pid = false;
+
 		libusb_set_configuration(fd, 0);
-		ret = claim_interface(MLINK_INTERFACE);
+		interfaceNo = MLINK_INTERFACE;
 	} else if (fd = libusb_open_device_with_vid_pid(context, vid, vcp_pid)) {
 		printf("vid = %04x, pid = %04x\n", vid , vcp_pid);
-		is_vcp_pid = true;
+
 		libusb_set_configuration(fd, 0);
-		ret = claim_interface(MLINK_VCP_INTERFACE);
+		interfaceNo = MLINK_VCP_INTERFACE;
 	} else {
 		printf("open failed, device not found\n");
 		return ERROR_FAIL;
@@ -310,7 +317,7 @@ static int mlink_init(void)
 	return ret;
 }
 
-static void mlink_exit() {
+void mlink_exit() {
     libusb_release_interface(fd, 0);
     libusb_close(fd);
     libusb_exit(context);
