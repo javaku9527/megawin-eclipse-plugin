@@ -13,6 +13,7 @@ uint16_t vid = 0x0E6A, pid = 0x0325, vcp_pid = 0x0331;
 static uint8_t *cmdbuf;
 static uint8_t *databuf;
 static uint32_t interfaceNo;
+static uint32_t voltage; 
 
 struct device *found_device;
 
@@ -23,10 +24,14 @@ int claim_interface(int idx);
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 2) {
+    if (argc != 3) {
 		printf("incomplete flash configuration directive\n");
 		return ERROR_NO_CONFIG_FILE;
 	}
+
+	char *endptr;
+	voltage = (uint32_t)strtoul(argv[2], &endptr, 16);
+	printf("voltage = %x\n", voltage);
 
 	const char *path = argv[1];
 	printf("flash image: %s \n", path);
@@ -238,7 +243,7 @@ int flash_target(FILE *fp) {
 	printf("read bytes: %zu \n", bytesRead);
 	fclose(fp);
 
-	mlink_usb_interrupt(fd, SET_OPEN_PULLUP_R, 0x3712);
+	mlink_usb_interrupt(fd, SET_OPEN_PULLUP_R, voltage);
 	mlink_usb_interrupt(fd, SET_ICP_INIT, 0x16);
 	
 	// Read Device ID

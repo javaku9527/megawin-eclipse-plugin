@@ -25,7 +25,8 @@ public class FlashMemoryHandler extends AbstractHandler {
 		try {
 			File hexfile = getHexFile();
 			String exePath = EclipseUtils.getFlashMemExePath();
-			Process process = new ProcessBuilder(exePath, hexfile.getAbsolutePath()).start();
+			String voltage = EclipseUtils.getPullUpVoltage();
+			Process process = new ProcessBuilder(exePath, hexfile.getAbsolutePath(), voltage).start();
 			String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
 			// Wait for the process to finish and get the return value
 			int exitCode = process.waitFor();

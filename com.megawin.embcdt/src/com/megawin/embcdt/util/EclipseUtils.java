@@ -1,7 +1,9 @@
 package com.megawin.embcdt.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,6 +16,8 @@ import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -21,6 +25,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -95,6 +101,50 @@ public class EclipseUtils {
 		}
 	}
 
+	public static String getPullUpVoltage() throws InterruptedException {
+
+		String configPath = getConfigPath();
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(configPath))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				// 使用正規表達式進行匹配
+				Pattern pattern = Pattern.compile("mlink pull_voltage (.*)");
+				Matcher matcher = pattern.matcher(line);
+
+				// 如果找到匹配的字串，印出捕捉到的值
+				if (matcher.find()) {
+					String value = matcher.group(1);
+					System.out.println("Found: " + value);
+					return value;
+				}
+			}
+		} catch (IOException e) {
+			System.out.println("config not found: " + configPath);
+		}
+
+		throw new InterruptedException("pull up voltage command not found");
+	}
+
+	private static String getConfigPath() {
+		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode("org.eclipse.embedcdt.managedbuild.packs.ui");
+		String configName = preferences.get("mega_mcu_name", "123");
+
+		String filePath = System.getProperty("java.io.tmpdir") + File.separator + PATH + CONFIG_BIN + File.separator
+				+ configName + ".cfg";
+		return filePath;
+	}
+
+	private static String extractValue(String line, String searchString) {
+		// 找到 %s 的位置
+		int index = line.indexOf(searchString);
+		if (index != -1) {
+			// 提取 %s 的值
+			return line.substring(index + searchString.length()).trim();
+		}
+		return null;
+	}
+
 	private static String getDestFlashMemExePath(String name) {
 		return System.getProperty("java.io.tmpdir") + File.separator + PATH + LIB_BIN + File.separator + name;
 	}
@@ -142,4 +192,5 @@ public class EclipseUtils {
 			e.printStackTrace();
 		}
 	}
+
 }
