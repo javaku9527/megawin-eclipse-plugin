@@ -283,16 +283,6 @@ int claim_interface(int idx)
 	return ret;
 }
 
-int set_configuration() {
-	int ret = libusb_set_configuration(fd, 1);
-    if (ret < 0) {
-        printf("Failed to set configuration: %s\n", libusb_error_name(ret));
-        libusb_close(fd);
-        libusb_exit(context);
-        return ret;
-    }
-}
-
 int mlink_init(void) 
 {
     int ret = libusb_init(&context);
@@ -302,15 +292,11 @@ int mlink_init(void)
     }
 
 	if (fd = libusb_open_device_with_vid_pid(context, vid, pid)) {
-		printf("vid = %04x, pid = %04x\n", vid , pid);
-
-		libusb_set_configuration(fd, 0);
 		interfaceNo = MLINK_INTERFACE;
+		printf("vid = %04x, pid = %04x\n", vid , pid);
 	} else if (fd = libusb_open_device_with_vid_pid(context, vid, vcp_pid)) {
-		printf("vid = %04x, pid = %04x\n", vid , vcp_pid);
-
-		libusb_set_configuration(fd, 0);
 		interfaceNo = MLINK_VCP_INTERFACE;
+		printf("vid = %04x, pid = %04x\n", vid , vcp_pid);
 	} else {
 		printf("open failed, device not found\n");
 		return ERROR_FAIL;
