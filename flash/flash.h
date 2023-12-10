@@ -1,45 +1,48 @@
-#define false	0
-#define true	1
+#define false									0
+#define true									1
 
-#define ERROR_OK						(0)
-#define ERROR_NO_CONFIG_FILE			(-2)
-#define ERROR_BUF_TOO_SMALL				(-3)
-#define ERROR_FAIL						(-4)
-#define ERROR_WAIT						(-5)
-#define ERROR_TIMEOUT_REACHED			(-6)
-#define ERROR_NOT_IMPLEMENTED			(-7)
+#define ERROR_OK							  (0)
+#define ERROR_NO_CONFIG_FILE				 (-2)
+#define ERROR_BUF_TOO_SMALL					 (-3)
+#define ERROR_FAIL							 (-4)
+#define ERROR_WAIT						 	 (-5)
+#define ERROR_TIMEOUT_REACHED				 (-6)
+#define ERROR_NOT_IMPLEMENTED				 (-7)
 
 // SET
-#define SET_MLINK_SWD_LINE_RST  0x0101
-#define SET_MLINK_JTAG_TO_SWD   0x0201
-#define SET_ICE_END	            0x0401
-#define SET_ICP_INIT            0x0a01
-#define SET_OPEN_PULLUP_R       0x0d01
-#define SET_ICE_DAP             0x0f01
+#define SET_MLINK_SWD_LINE_RST  	  	   0x0101
+#define SET_MLINK_JTAG_TO_SWD   	 	   0x0201
+#define SET_ICE_END	    			  	   0x0401
+#define SET_ICP_INIT            	  	   0x0a01
+#define SET_OPEN_PULLUP_R       	  	   0x0d01
+#define SET_ICE_DAP             	  	   0x0f01
 
 // ERASE
-#define ERASE_CHIP            	0x0202
+#define ERASE_CHIP            		  	   0x0202
 
 // READ
-#define READ_ICE_DAP            0x0104
-#define READ_DUT_ID	            0x0904
-#define READ_CFG		       	0x0a04
+#define READ_ICE_DAP            	  	   0x0104
+#define READ_DUT_ID	            	  	   0x0904
+#define READ_CFG		       		  	   0x0a04
 
 // PROGRAM
-#define PROGRAM_CODE            0x0105
-#define PROGRAM_OR              0x0205
+#define PROGRAM_CODE            	  	   0x0105
+#define PROGRAM_OR              	  	   0x0205
 
 // MLINK CONFIG
-#define VID = 0x0E6A
-#define PID = 0x0325
-#define VCP_PID = 0x0331
-#define MLINK_INTERFACE      		 0
-#define MLINK_VCP_INTERFACE   		 2
-#define HID_PACKET_SIZE   		  0x80
+#define VID 						  	   0x0E6A
+#define PID 						  	   0x0325
+#define VCP_PID 					  	   0x0331
+#define MLINK_CONTROL_INTERFACE			   		0
+#define MLINK_INTERRUPT_INTERFACE		   		0
+#define MLINK_VCP_LINUX_CONTROL_INTERFACE		0
+#define MLINK_VCP_WINDOWS_CONTROL_INTERFACE		2
+#define MLINK_VCP_INTERRUPT_INTERFACE      		2
+#define HID_PACKET_SIZE   		  			 0x80
 
 // 
-#define MLINK_CMD_SIZE     		   128
-#define MLINK_DATA_SIZE     	  1024
+#define MLINK_CMD_SIZE     		   		 	  128
+#define MLINK_DATA_SIZE     	  			 1024
 
 static inline void buf_set_u32(uint8_t *_buffer,
 	unsigned first, unsigned num, uint32_t value)

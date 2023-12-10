@@ -12,7 +12,8 @@ uint16_t vid = 0x0E6A, pid = 0x0325, vcp_pid = 0x0331;
 
 static uint8_t *cmdbuf;
 static uint8_t *databuf;
-static uint32_t interfaceNo;
+static uint32_t interruptInterfaceNo;
+static uint32_t controlInterfaceNo;
 static uint32_t voltage; 
 
 struct device *found_device;
@@ -70,7 +71,7 @@ int mlink_usb_control(libusb_device_handle *handle, uint16_t cmd, uint32_t addr,
 	buf_set_u32(cmdbuf, 8 * 2 * 4, 32, len);
 	buf_set_u32(cmdbuf, 12 * 2 * 4, 32, val);
 	
-	claim_interface(0);
+	claim_interface(controlInterfaceNo);
 	ret = libusb_control_transfer(handle, 0x21, 0x09, 0x0300, 0x0000, (char *)cmdbuf, 128, 1000);
 
 	return ret;
@@ -78,7 +79,7 @@ int mlink_usb_control(libusb_device_handle *handle, uint16_t cmd, uint32_t addr,
 
 int mlink_data_stage(libusb_device_handle *handle) {
 
-	claim_interface(0);
+	claim_interface(controlInterfaceNo);
 	int ret = libusb_control_transfer(handle, 0xA1, 0x01, 0x0300, 0x0000, (char *)databuf, 128, 1000);
 	return ret;
 }
@@ -89,7 +90,7 @@ int mlink_usb_interrupt(void *handle, uint16_t cmd, uint32_t addr) {
 	mlink_usb_control(fd, cmd, addr, 0, 0);
 
 	int act_len;
-	claim_interface(interfaceNo);
+	claim_interface(interruptInterfaceNo);
 	int ret = libusb_interrupt_transfer(handle, 0x81, databuf, 64, &act_len, 1000);
 	uint32_t status = le_to_h_u32(databuf);
 	
@@ -134,7 +135,7 @@ int ice_write_data(uint16_t cmd, uint8_t* buffer, uint32_t addr, uint32_t size)
 		}
 		int act_len;
 		init_buffer();
-		claim_interface(interfaceNo);
+		claim_interface(interruptInterfaceNo);
 		dwResult = libusb_interrupt_transfer(fd, 0x81, databuf, 64, &act_len, 1000);									
 		printf("ice_write_data return status: %x %d %d\n", databuf[0], databuf[2], databuf[3]);
 	}
@@ -292,10 +293,18 @@ int mlink_init(void)
     }
 
 	if (fd = libusb_open_device_with_vid_pid(context, vid, pid)) {
-		interfaceNo = MLINK_INTERFACE;
+		controlInterfaceNo = MLINK_CONTROL_INTERFACE;
+		interruptInterfaceNo = MLINK_INTERRUPT_INTERFACE;
 		printf("vid = %04x, pid = %04x\n", vid , pid);
 	} else if (fd = libusb_open_device_with_vid_pid(context, vid, vcp_pid)) {
-		interfaceNo = MLINK_VCP_INTERFACE;
+
+		#ifdef _WIN32
+			controlInterfaceNo = MLINK_VCP_WINDOWS_CONTROL_INTERFACE;
+		#elif __linux__
+			controlInterfaceNo = MLINK_VCP_LINUX_CONTROL_INTERFACE;
+		#endif
+				
+		interruptInterfaceNo = MLINK_VCP_INTERRUPT_INTERFACE;
 		printf("vid = %04x, pid = %04x\n", vid , vcp_pid);
 	} else {
 		printf("open failed, device not found\n");
