@@ -14,7 +14,8 @@ static uint8_t *cmdbuf;
 static uint8_t *databuf;
 static uint32_t interruptInterfaceNo;
 static uint32_t controlInterfaceNo;
-static uint32_t voltage; 
+static uint32_t voltage;
+static uint32_t partNum;
 
 struct device *found_device;
 
@@ -25,7 +26,7 @@ int claim_interface(int idx);
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 3) {
+    if (argc != 4) {
 		printf("incomplete flash configuration directive\n");
 		return ERROR_NO_CONFIG_FILE;
 	}
@@ -33,6 +34,9 @@ int main(int argc, char *argv[]) {
 	char *endptr;
 	voltage = (uint32_t)strtoul(argv[2], &endptr, 16);
 	printf("voltage = %x\n", voltage);
+
+	partNum = (uint32_t)strtoul(argv[3], &endptr, 16);
+	printf("partNum = %x\n", partNum);
 
 	const char *path = argv[1];
 	printf("flash image: %s \n", path);
@@ -245,10 +249,10 @@ int flash_target(FILE *fp) {
 	fclose(fp);
 
 	mlink_usb_interrupt(fd, SET_OPEN_PULLUP_R, voltage);
-	mlink_usb_interrupt(fd, SET_ICP_INIT, 0x16);
+	mlink_usb_interrupt(fd, SET_ICP_INIT, partNum);
 	
 	// Read Device ID
-	mlink_usb_control(fd, READ_DUT_ID, 0x16, 0x04, 0);	
+	mlink_usb_control(fd, READ_DUT_ID, partNum, 0x04, 0);	
 	mlink_data_stage(fd);
 	uint32_t deviceId = le_to_h_u32(databuf);	
 	found_device = find_device(device_array, deviceId);
