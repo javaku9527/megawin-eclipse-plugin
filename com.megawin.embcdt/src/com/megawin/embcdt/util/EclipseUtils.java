@@ -126,13 +126,14 @@ public class EclipseUtils {
 		throw new InterruptedException("pull up voltage command not found");
 	}
 
-	private static String getConfigPath() {
+	public static String getMCUName() {
 		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode("org.eclipse.embedcdt.managedbuild.packs.ui");
-		String configName = preferences.get("mega_mcu_name", "123");
+		return preferences.get("mega_mcu_name", "MCU_NOT_SET");
+	}
 
-		String filePath = System.getProperty("java.io.tmpdir") + File.separator + PATH + CONFIG_BIN + File.separator
-				+ configName + ".cfg";
-		return filePath;
+	private static String getConfigPath() {
+		return System.getProperty("java.io.tmpdir") + File.separator + PATH + CONFIG_BIN + File.separator + getMCUName()
+				+ ".cfg";
 	}
 
 	private static String extractValue(String line, String searchString) {

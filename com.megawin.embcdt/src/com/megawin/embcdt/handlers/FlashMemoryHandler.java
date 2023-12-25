@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.megawin.embcdt.util.EclipseUtils;
 
@@ -26,14 +28,17 @@ public class FlashMemoryHandler extends AbstractHandler {
 			File hexfile = getHexFile();
 			String exePath = EclipseUtils.getFlashMemExePath();
 			String voltage = EclipseUtils.getPullUpVoltage();
-			Process process = new ProcessBuilder(exePath, hexfile.getAbsolutePath(), voltage).start();
+			String mcuName = EclipseUtils.getMCUName();
+			
+			Process process = new ProcessBuilder(exePath, hexfile.getAbsolutePath(), voltage, mcuName).start();
 			String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
 			// Wait for the process to finish and get the return value
 			int exitCode = process.waitFor();
 			if (exitCode == 0) {
-				EclipseUtils.openPopupWindow(event, "Success", "Flash Target: \n" + hexfile.getAbsolutePath() + "\nSuccess!!!");
+				EclipseUtils.openPopupWindow(event, "Success", "Flash Target: " + hexfile.getAbsolutePath() + "\nSuccess!!!");
 			} else {
-				EclipseUtils.openPopupWindow(event, "Failed", "Error!! " + output);
+				String[] logs = output.split("\n");				
+				EclipseUtils.openPopupWindow(event, "Failed", "Error!! Error Code: " + exitCode + "\n" + logs[logs.length - 1]);
 			}
 
 		} catch (ExecutionException e) {

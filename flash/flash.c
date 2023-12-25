@@ -12,10 +12,10 @@ uint16_t vid = 0x0E6A, pid = 0x0325, vcp_pid = 0x0331;
 
 static uint8_t *cmdbuf;
 static uint8_t *databuf;
+static char *mcu_name;
 static uint32_t interruptInterfaceNo;
 static uint32_t controlInterfaceNo;
-static uint32_t voltage;
-static uint32_t partNum;
+static uint32_t voltage; 
 
 struct device *found_device;
 
@@ -26,6 +26,8 @@ int claim_interface(int idx);
 
 int main(int argc, char *argv[]) {
 
+	int ret;
+
     if (argc != 4) {
 		printf("incomplete flash configuration directive\n");
 		return ERROR_NO_CONFIG_FILE;
@@ -34,9 +36,9 @@ int main(int argc, char *argv[]) {
 	char *endptr;
 	voltage = (uint32_t)strtoul(argv[2], &endptr, 16);
 	printf("voltage = %x\n", voltage);
-
-	partNum = (uint32_t)strtoul(argv[3], &endptr, 16);
-	printf("partNum = %x\n", partNum);
+	
+	mcu_name = argv[3];
+	printf("mcu_name = %s\n", mcu_name);
 
 	const char *path = argv[1];
 	printf("flash image: %s \n", path);
@@ -47,10 +49,16 @@ int main(int argc, char *argv[]) {
 		return ERROR_FAIL;
 	}
 
-	mlink_init();
-    flash_target(fp);
-	mlink_exit();
-    return 0;
+	ret = mlink_init();
+	if(ret != 0) {
+		printf("Error: MLINK open failed, device not found\n");
+		return ret;
+	}
+
+    ret = flash_target(fp);	
+	mlink_exit();		
+
+    return ret;
 }
 
 void init_buffer(void)  
@@ -102,14 +110,20 @@ int mlink_usb_interrupt(void *handle, uint16_t cmd, uint32_t addr) {
 	return ERROR_OK;
 }
 
-struct device *find_device(struct device *devices, uint32_t device_id)
+struct device *find_device(struct device *devices, char* device_name)
 {
     for (size_t i = 0; i < DEVICE_ARRAY_SIZE; i++) {
-        if (devices[i].dwDeviceID == device_id) {
+        if (!strcmp(devices[i].name, device_name)) {
             return &devices[i];
         }
     }
+
     return NULL;
+}
+
+int check_deviceId(struct device *device, uint32_t device_id)
+{    
+    return device->deviceId == device_id;
 }
 
 int ice_write_data(uint16_t cmd, uint8_t* buffer, uint32_t addr, uint32_t size)
@@ -248,18 +262,25 @@ int flash_target(FILE *fp) {
 	printf("read bytes: %zu \n", bytesRead);
 	fclose(fp);
 
+	found_device = find_device(device_array, mcu_name);
+	if (found_device == NULL) {
+		printf("Error: Can't find Device!, DeviceName = %s", mcu_name);
+		return ERROR_FAIL;
+	}
+
 	mlink_usb_interrupt(fd, SET_OPEN_PULLUP_R, voltage);
-	mlink_usb_interrupt(fd, SET_ICP_INIT, partNum);
+	mlink_usb_interrupt(fd, SET_ICP_INIT, found_device->partNum);
 	
 	// Read Device ID
-	mlink_usb_control(fd, READ_DUT_ID, partNum, 0x04, 0);	
+	mlink_usb_control(fd, READ_DUT_ID, found_device->partNum, 0x04, 0);	
 	mlink_data_stage(fd);
 	uint32_t deviceId = le_to_h_u32(databuf);	
-	found_device = find_device(device_array, deviceId);
-	printf("DeviceID = %x\n", deviceId);
-	if (found_device == NULL) {
-		printf("Can't find Device!, DeviceID = %x", deviceId);
-		//return ERROR_FAIL;
+
+	if (!check_deviceId(found_device, deviceId)) {
+		printf("Error: DeviceID should be: %x, but get DeviceID: %x\n", found_device->deviceId, deviceId);
+		return ERROR_FAIL;
+	} else {
+		printf("DeviceID %x is valid\n", deviceId);
 	}
 
 	mlink_usb_interrupt(fd, ERASE_CHIP, 0);
